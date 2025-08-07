@@ -103,14 +103,14 @@ DISCORD_TOKEN=your_discord_bot_token_here
 API_KEY=your_cloudflare_api_key_here
 ACCOUNT_ID=your_cloudflare_account_id_here
 AI_GATEWAY=your_ai_gateway_name_here
-MODEL=@cf/meta/llama-3.1-8b-instruct
+MODEL=e.g. @cf/meta/llama-3.1-8b-instruct
 
 # Auto RAG Configuration (Optional - only needed for !d2 command)
 AUTORAG_NAME=your_autorag_instance_name
 AUTORAG_API_KEY=your_autorag_api_key
 
 # Image Generation Configuration (Optional - only needed for !draw command)
-DRAW_MODEL=@cf/black-forest-labs/flux-1-schnell
+DRAW_MODEL=e.g. @cf/stabilityai/stable-diffusion-xl-base-1.0
 
 # System Prompt (customize the bot's personality)
 SYSTEM_PROMPT=You are a helpful AI assistant. Provide clear, concise, and informative responses.
