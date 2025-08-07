@@ -68,9 +68,9 @@ def call_autorag_api(query):
     }
     
     try:
-        response = requests.post(AUTORAG_URL, headers=headers, json=data)
+        response = requests.post(AUTORAG_URL, headers=headers, json=data, timeout=30)
         response.raise_for_status()
-        result = response.json()
+        result = response.json()    
         
         # Extract just the response content from the Auto RAG API result
         if 'success' in result and result['success'] and 'result' in result and 'response' in result['result']:
@@ -78,8 +78,16 @@ def call_autorag_api(query):
         else:
             return "Sorry, I couldn't get a proper response from the Auto RAG service."
         
+    except requests.exceptions.Timeout:
+        return "The Auto RAG service is taking too long to respond. Please try again later."
+    except requests.exceptions.ConnectionError as e:
+        return "Unable to connect to the Auto RAG service. Please check your internet connection."
+    except requests.exceptions.HTTPError as e:
+        return f"Auto RAG service returned an error"
     except requests.exceptions.RequestException as e:
         return f"Error calling Auto RAG service"
+    except Exception as e:  
+        return f"An unexpected error occurred"
 
 def call_draw_ai_api(prompt):
     """Call the Draw AI API to generate an image from a prompt"""
