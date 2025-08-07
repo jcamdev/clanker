@@ -21,6 +21,7 @@ AI_GATEWAY = os.getenv('AI_GATEWAY')
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
 MODEL = os.getenv('MODEL')
+DRAW_MODEL = os.getenv('DRAW_MODEL')
 AUTORAG_NAME = os.getenv('AUTORAG_NAME')
 AUTORAG_API_KEY = os.getenv('AUTORAG_API_KEY')
 

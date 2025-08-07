@@ -11,6 +11,7 @@ account_id = os.getenv('ACCOUNT_ID')
 ai_gateway = os.getenv('AI_GATEWAY')
 autorag_name = os.getenv('AUTORAG_NAME')
 autorag_api_key = os.getenv('AUTORAG_API_KEY')
+draw_model = os.getenv('DRAW_MODEL')
 
 # regular model search
 url = f"https://gateway.ai.cloudflare.com/v1/{account_id}/{ai_gateway}/workers-ai/@cf/meta/llama-3.1-8b-instruct"
@@ -44,6 +45,36 @@ headers2 = {
 data2 = {
     "query": "What is Dota 2?"
 }
+
+#draw image
+
+url3 = f"https://gateway.ai.cloudflare.com/v1/{account_id}/{ai_gateway}/workers-ai/{draw_model}"
+
+headers3 = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json"
+}
+
+data3 = {
+    "prompt": "cyberpunk cat"
+}
+
+#draw image output
+"""
+ReadableStream {
+  locked: false,
+  [state]: 'readable',
+  [supportsBYOB]: true,
+  [length]: undefined
+}
+
+{
+    "type": "string",
+    "contentType": "image/png",
+    "format": "binary",
+    "description": "The generated image in PNG format"
+}
+"""
 
 
 try:
