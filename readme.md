@@ -6,10 +6,11 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
 
 - Conversational AI powered by Cloudflare Workers AI (Llama 3.1 8B model & llama-4-scout-17b-16e-instruct work, others depends on the response and I haven't tested)
 - Auto RAG search functionality for knowledge base queries
+- AI image generation using Cloudflare Workers AI image models
 - Maintains conversation context (remembers previous messages)
 - Smart memory management (keeps last 6 messages + system prompt)
 - Secure environment variable configuration
-- Simple `!ask` and `!d2` command interfaces
+- Simple `!ask`, `!d2`, and `!draw` command interfaces
 
 ## Prerequisites
 
@@ -108,6 +109,9 @@ MODEL=@cf/meta/llama-3.1-8b-instruct
 AUTORAG_NAME=your_autorag_instance_name
 AUTORAG_API_KEY=your_autorag_api_key
 
+# Image Generation Configuration (Optional - only needed for !draw command)
+DRAW_MODEL=@cf/black-forest-labs/flux-1-schnell
+
 # System Prompt (customize the bot's personality)
 SYSTEM_PROMPT=You are a helpful AI assistant. Provide clear, concise, and informative responses.
 ```
@@ -130,6 +134,7 @@ Bot is ready and listening for !ask commands
 
 - `!ask <your question>` - Ask the AI a question with conversation memory
 - `!d2 <your query>` - Search your Auto RAG knowledge base (no conversation memory)
+- `!draw <prompt>` - Generate an AI image from your text prompt
 
 ### Command Differences
 
@@ -159,6 +164,14 @@ Bot is ready and listening for !ask commands
 !d2 What is Dota 2?
 !d2 How do I build items in Dota?
 !d2 Best heroes for beginners
+```
+
+**AI Image Generation (!draw):**
+```
+!draw cyberpunk cat
+!draw sunset over mountains
+!draw abstract art with blue and gold
+!draw a futuristic cityscape at night
 ```
 
 ## Configuration Options

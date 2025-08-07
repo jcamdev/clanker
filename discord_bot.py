@@ -1,6 +1,7 @@
 import discord
 import requests
 import os
+import io
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -28,6 +29,7 @@ AUTORAG_API_KEY = os.getenv('AUTORAG_API_KEY')
 # Construct the API URLs
 API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/{MODEL}"
 AUTORAG_URL = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/autorag/rags/{AUTORAG_NAME}/ai-search"
+DRAW_API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/{DRAW_MODEL}"
 
 def call_ai_api(messages):
     """Call the AI API with the conversation messages"""
@@ -79,6 +81,27 @@ def call_autorag_api(query):
     except requests.exceptions.RequestException as e:
         return f"Error calling Auto RAG service"
 
+def call_draw_ai_api(prompt):
+    """Call the Draw AI API to generate an image from a prompt"""
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "prompt": prompt
+    }
+    
+    try:
+        response = requests.post(DRAW_API_URL, headers=headers, json=data)
+        response.raise_for_status()
+        
+        # Return the raw image data (binary PNG)
+        return response.content
+        
+    except requests.exceptions.RequestException as e:
+        return None
+
 def trim_conversation_history(messages, max_length=6):
     """Keep conversation history under max_length, preserving the system prompt"""
     if len(messages) <= max_length:
@@ -93,7 +116,7 @@ def trim_conversation_history(messages, max_length=6):
 @client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
-    print(f'Bot is ready and listening for !ask & !d2 commands')
+    print(f'Bot is ready and listening for !ask & !d2 & !draw commands')
 
 @client.event
 async def on_message(message):
@@ -159,6 +182,27 @@ async def on_message(message):
         
         # Send the response back to the channel
         await message.channel.send(rag_response)
+    
+    # Check if message starts with !draw
+    elif message.content.startswith('!draw '):
+        # Extract the prompt after "!draw "
+        user_prompt = message.content[6:].strip()
+        
+        if not user_prompt:
+            await message.channel.send("Please provide a prompt after `!draw`. Example: `!draw cyberpunk cat`")
+            return
+        
+        # Send typing indicator
+        async with message.channel.typing():
+            # Call the Draw AI API
+            image_data = call_draw_ai_api(user_prompt)
+        
+        if image_data:
+            # Create a Discord file from the image data
+            file = discord.File(io.BytesIO(image_data), filename="generated_image.png")
+            await message.channel.send(f"Generated image for: **{user_prompt}**", file=file)
+        else:
+            await message.channel.send("Sorry, I couldn't generate an image. Please try again later.")
 
 # Run the bot
 if __name__ == "__main__":
