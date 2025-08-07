@@ -16,6 +16,7 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
 - Python 3.7 or higher
 - A Discord account
 - A Cloudflare account with Workers AI access
+- Server to host bot with constant websocket connection (trying to see if Durable Objects is viable for this, will add later if so)
 
 ## Discord Bot Setup
 
