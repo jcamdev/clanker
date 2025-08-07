@@ -47,9 +47,11 @@ data2 = {
 
 
 try:
+    print("Testing regular model search")
     response = requests.post(url, headers=headers, json=data)
     response.raise_for_status()
     print(response.json())
+    print("Testing autorag search")
     response2 = requests.post(url2, headers=headers2, json=data2)
     response2.raise_for_status()
     print(response2.json())

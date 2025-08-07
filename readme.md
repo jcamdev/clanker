@@ -4,11 +4,12 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
 
 ## Features
 
-- Conversational AI powered by Cloudflare Workers AI (Llama 3.1 8B model & llama-4-scout-17b-16e-instruct work, others depends on the response and I havn't tested)
+- Conversational AI powered by Cloudflare Workers AI (Llama 3.1 8B model & llama-4-scout-17b-16e-instruct work, others depends on the response and I haven't tested)
+- Auto RAG search functionality for knowledge base queries
 - Maintains conversation context (remembers previous messages)
 - Smart memory management (keeps last 6 messages + system prompt)
 - Secure environment variable configuration
-- Simple `!ask` command interface
+- Simple `!ask` and `!d2` command interfaces
 
 ## Prerequisites
 
@@ -61,6 +62,23 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
    - Go to "AI" > "AI Gateway"
    - Create a new gateway and note the gateway name
 
+### 2. Set Up Auto RAG (Optional)
+
+Auto RAG allows the bot to search through your knowledge base and provide contextual answers.
+
+1. In your Cloudflare Dashboard, go to "AI" > "Auto RAG"
+2. Create a new Auto RAG instance:
+   - Click "Create Auto RAG"
+   - Give it a name (save this as your `AUTORAG_NAME`)
+   - Upload your documents or connect data sources
+3. Create an Auto RAG API token:
+   - Select the AutoRAG
+   - Click Use AutoRAG
+   - Click API
+   - Click "Create an AutoRAG API Token"
+   - Give token AutoRAG run permissions (might also need edit & read idk)
+   - Save this token as your `AUTORAG_API_KEY`
+
 ## Installation & Configuration
 
 ### 1. Clone and Install
@@ -83,7 +101,11 @@ DISCORD_TOKEN=your_discord_bot_token_here
 API_KEY=your_cloudflare_api_key_here
 ACCOUNT_ID=your_cloudflare_account_id_here
 AI_GATEWAY=your_ai_gateway_name_here
-MODEL=ai_model e.g. @cf/meta/llama-3.1-8b-instruct
+MODEL=@cf/meta/llama-3.1-8b-instruct
+
+# Auto RAG Configuration (Optional - only needed for !d2 command)
+AUTORAG_NAME=your_autorag_instance_name
+AUTORAG_API_KEY=your_autorag_api_key
 
 # System Prompt (customize the bot's personality)
 SYSTEM_PROMPT=You are a helpful AI assistant. Provide clear, concise, and informative responses.
@@ -105,15 +127,37 @@ Bot is ready and listening for !ask commands
 
 ### Basic Commands
 
-- `!ask <your question>` - Ask the AI a question
-- The bot maintains conversation context, so you can ask follow-up questions
+- `!ask <your question>` - Ask the AI a question with conversation memory
+- `!d2 <your query>` - Search your Auto RAG knowledge base (no conversation memory)
+
+### Command Differences
+
+**!ask Command:**
+- Maintains conversation context across messages
+- Remembers previous questions and answers in the same channel
+- Uses the system prompt to define AI personality
+- Best for ongoing conversations and follow-up questions
+
+**!d2 Command:**
+- Searches through your uploaded knowledge base
+- No conversation memory (each query is independent)
+- Returns information from your specific documents
+- Best for factual lookups and document-based questions
 
 ### Examples
 
+**Conversational AI (!ask):**
 ```
 !ask What is Python?
 !ask How do I install it?
 !ask What are some good Python libraries for web development?
+```
+
+**Knowledge Base Search (!d2):**
+```
+!d2 What is Dota 2?
+!d2 How do I build items in Dota?
+!d2 Best heroes for beginners
 ```
 
 ## Configuration Options
