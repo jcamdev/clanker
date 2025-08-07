@@ -203,6 +203,42 @@ async def on_message(message):
             await message.channel.send(f"Generated image for: **{user_prompt}**", file=file)
         else:
             await message.channel.send("Sorry, I couldn't generate an image. Please try again later.")
+    
+    # Check if message is !help
+    elif message.content.strip() == '!help':
+        help_embed = discord.Embed(
+            title="🤖 Bot Commands",
+            description="Here are all the available commands:",
+            color=0x00ff00
+        )
+        
+        help_embed.add_field(
+            name="💬 !ask <question>",
+            value="Ask the AI a question with conversation memory\nExample: `!ask What is Python?`",
+            inline=False
+        )
+        
+        help_embed.add_field(
+            name="🔍 !d2 <query>",
+            value="Search the knowledge base (no conversation memory)\nExample: `!d2 What is Dota 2?`",
+            inline=False
+        )
+        
+        help_embed.add_field(
+            name="🎨 !draw <prompt>",
+            value="Generate an AI image from your text prompt\nExample: `!draw cyberpunk cat`",
+            inline=False
+        )
+        
+        help_embed.add_field(
+            name="❓ !help",
+            value="Show this help message",
+            inline=False
+        )
+        
+        
+        
+        await message.channel.send(embed=help_embed)
 
 # Run the bot
 if __name__ == "__main__":
