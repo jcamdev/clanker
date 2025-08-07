@@ -12,6 +12,8 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
 - Secure environment variable configuration
 - Simple `!ask`, `!d2`, and `!draw` command interfaces
 
+<img width="1142" height="592" alt="image" src="https://github.com/user-attachments/assets/7634846d-4ec3-451f-9820-9bfcf46fd8e0" />
+
 ## Prerequisites
 
 - Python 3.7 or higher
