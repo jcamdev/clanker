@@ -4,7 +4,7 @@ A Discord bot that integrates with Cloudflare Workers AI to provide conversation
 
 ## Features
 
-- Conversational AI powered by Cloudflare Workers AI (Llama 3.1 8B)
+- Conversational AI powered by Cloudflare Workers AI (Llama 3.1 8B model & llama-4-scout-17b-16e-instruct work, others depends on the response and I havn't tested)
 - Maintains conversation context (remembers previous messages)
 - Smart memory management (keeps last 6 messages + system prompt)
 - Secure environment variable configuration
