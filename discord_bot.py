@@ -1,5 +1,6 @@
 import discord
-import requests
+import aiohttp
+import asyncio
 import os
 import io
 from dotenv import load_dotenv
@@ -31,7 +32,7 @@ API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/worke
 AUTORAG_URL = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/autorag/rags/{AUTORAG_NAME}/ai-search"
 DRAW_API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/{DRAW_MODEL}"
 
-def call_ai_api(messages):
+async def call_ai_api(messages):
     """Call the AI API with the conversation messages"""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -43,20 +44,23 @@ def call_ai_api(messages):
     }
     
     try:
-        response = requests.post(API_URL, headers=headers, json=data)
-        response.raise_for_status()
-        result = response.json()
-        
-        # Extract the response from the API result
-        if 'result' in result and 'response' in result['result']:
-            return result['result']['response']
-        else:
-            return "Sorry, I couldn't get a proper response from the AI service."
-            
-    except requests.exceptions.RequestException as e:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(API_URL, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                response.raise_for_status()
+                result = await response.json()
+                
+                # Extract the response from the API result
+                if 'result' in result and 'response' in result['result']:
+                    return result['result']['response']
+                else:
+                    return "Sorry, I couldn't get a proper response from the AI service."
+                    
+    except asyncio.TimeoutError:
+        return "The AI service is taking too long to respond. Please try again later."
+    except aiohttp.ClientError as e:
         return f"Error calling AI service"
 
-def call_autorag_api(query):
+async def call_autorag_api(query):
     """Call the Auto RAG search API with a single query"""
     headers = {
         "Authorization": f"Bearer {AUTORAG_API_KEY}",
@@ -68,28 +72,29 @@ def call_autorag_api(query):
     }
     
     try:
-        response = requests.post(AUTORAG_URL, headers=headers, json=data, timeout=30)
-        response.raise_for_status()
-        result = response.json()    
+        async with aiohttp.ClientSession() as session:
+            async with session.post(AUTORAG_URL, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                response.raise_for_status()
+                result = await response.json()    
+                
+                # Extract just the response content from the Auto RAG API result
+                if 'success' in result and result['success'] and 'result' in result and 'response' in result['result']:
+                    return result['result']['response']
+                else:
+                    return "Sorry, I couldn't get a proper response from the Auto RAG service."
         
-        # Extract just the response content from the Auto RAG API result
-        if 'success' in result and result['success'] and 'result' in result and 'response' in result['result']:
-            return result['result']['response']
-        else:
-            return "Sorry, I couldn't get a proper response from the Auto RAG service."
-        
-    except requests.exceptions.Timeout:
+    except asyncio.TimeoutError:
         return "The Auto RAG service is taking too long to respond. Please try again later."
-    except requests.exceptions.ConnectionError as e:
+    except aiohttp.ClientConnectorError as e:
         return "Unable to connect to the Auto RAG service. Please check your internet connection."
-    except requests.exceptions.HTTPError as e:
+    except aiohttp.ClientResponseError as e:
         return f"Auto RAG service returned an error"
-    except requests.exceptions.RequestException as e:
+    except aiohttp.ClientError as e:
         return f"Error calling Auto RAG service"
     except Exception as e:  
         return f"An unexpected error occurred"
 
-def call_draw_ai_api(prompt):
+async def call_draw_ai_api(prompt):
     """Call the Draw AI API to generate an image from a prompt"""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -101,13 +106,16 @@ def call_draw_ai_api(prompt):
     }
     
     try:
-        response = requests.post(DRAW_API_URL, headers=headers, json=data)
-        response.raise_for_status()
-        
-        # Return the raw image data (binary PNG)
-        return response.content
-        
-    except requests.exceptions.RequestException as e:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(DRAW_API_URL, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=60)) as response:
+                response.raise_for_status()
+                
+                # Return the raw image data (binary PNG)
+                return await response.read()
+                
+    except asyncio.TimeoutError:
+        return None
+    except aiohttp.ClientError as e:
         return None
 
 def trim_conversation_history(messages, max_length=6):
@@ -160,7 +168,7 @@ async def on_message(message):
         # Send typing indicator
         async with message.channel.typing():
             # Call the AI API with full conversation history
-            ai_response = call_ai_api(conversation_history[channel_id])
+            ai_response = await call_ai_api(conversation_history[channel_id])
         
         # Add assistant response to conversation history
         conversation_history[channel_id].append({
@@ -186,7 +194,7 @@ async def on_message(message):
         # Send typing indicator
         async with message.channel.typing():
             # Call the Auto RAG API
-            rag_response = call_autorag_api(user_query)
+            rag_response = await call_autorag_api(user_query)
         
         # Send the response back to the channel
         await message.channel.send(rag_response)
@@ -203,7 +211,7 @@ async def on_message(message):
         # Send typing indicator
         async with message.channel.typing():
             # Call the Draw AI API
-            image_data = call_draw_ai_api(user_prompt)
+            image_data = await call_draw_ai_api(user_prompt)
         
         if image_data:
             # Create a Discord file from the image data
