@@ -11,6 +11,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
+# Store conversation history per channel
+conversation_history = {}
+
 # API configuration
 API_KEY = os.getenv('API_KEY')
 ACCOUNT_ID = os.getenv('ACCOUNT_ID')
@@ -21,24 +24,15 @@ SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
 # Construct the API URL
 API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/@cf/meta/llama-3.1-8b-instruct"
 
-def call_ai_api(user_prompt):
-    """Call the AI API with the user's prompt"""
+def call_ai_api(messages):
+    """Call the AI API with the conversation messages"""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
     
     data = {
-        "messages": [
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT
-            },
-            {
-                "role": "user",
-                "content": user_prompt
-            }
-        ]
+        "messages": messages
     }
     
     try:
@@ -54,6 +48,17 @@ def call_ai_api(user_prompt):
             
     except requests.exceptions.RequestException as e:
         return f"Error calling AI service: {str(e)}"
+
+def trim_conversation_history(messages, max_length=6):
+    """Keep conversation history under max_length, preserving the system prompt"""
+    if len(messages) <= max_length:
+        return messages
+    
+    # Keep the system prompt (first message) and the most recent messages
+    system_prompt = messages[0]
+    recent_messages = messages[-(max_length-1):]
+    
+    return [system_prompt] + recent_messages
 
 @client.event
 async def on_ready():
@@ -75,10 +80,35 @@ async def on_message(message):
             await message.channel.send("Please provide a question after `!ask`. Example: `!ask what is cloudflare?`")
             return
         
+        # Get or initialize conversation history for this channel
+        channel_id = message.channel.id
+        if channel_id not in conversation_history:
+            conversation_history[channel_id] = [
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT
+                }
+            ]
+        
+        # Add user message to conversation history
+        conversation_history[channel_id].append({
+            "role": "user",
+            "content": user_prompt
+        })
+        
         # Send typing indicator
         async with message.channel.typing():
-            # Call the AI API
-            ai_response = call_ai_api(user_prompt)
+            # Call the AI API with full conversation history
+            ai_response = call_ai_api(conversation_history[channel_id])
+        
+        # Add assistant response to conversation history
+        conversation_history[channel_id].append({
+            "role": "assistant",
+            "content": ai_response
+        })
+        
+        # Trim conversation history to keep it under 6 messages
+        conversation_history[channel_id] = trim_conversation_history(conversation_history[channel_id])
         
         # Send the response back to the channel
         await message.channel.send(ai_response)
