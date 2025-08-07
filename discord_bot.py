@@ -20,9 +20,10 @@ ACCOUNT_ID = os.getenv('ACCOUNT_ID')
 AI_GATEWAY = os.getenv('AI_GATEWAY')
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
+MODEL = os.getenv('MODEL')
 
 # Construct the API URL
-API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/@cf/meta/llama-3.1-8b-instruct"
+API_URL = f"https://gateway.ai.cloudflare.com/v1/{ACCOUNT_ID}/{AI_GATEWAY}/workers-ai/{MODEL}"
 
 def call_ai_api(messages):
     """Call the AI API with the conversation messages"""

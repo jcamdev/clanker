@@ -83,6 +83,7 @@ DISCORD_TOKEN=your_discord_bot_token_here
 API_KEY=your_cloudflare_api_key_here
 ACCOUNT_ID=your_cloudflare_account_id_here
 AI_GATEWAY=your_ai_gateway_name_here
+MODEL=ai_model e.g. @cf/meta/llama-3.1-8b-instruct
 
 # System Prompt (customize the bot's personality)
 SYSTEM_PROMPT=You are a helpful AI assistant. Provide clear, concise, and informative responses.
