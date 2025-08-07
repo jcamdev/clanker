@@ -83,15 +83,58 @@ Auto RAG allows the bot to search through your knowledge base and provide contex
 
 ## Installation & Configuration
 
-### 1. Clone and Install
+You can run this bot either directly with Python or using Docker. Docker is recommended for production deployments.
+
+### Option 1: Docker (Recommended)
+
+#### Prerequisites
+- Docker and Docker Compose installed on your system
+- Git (to clone the repository)
+
+#### Quick Start with Docker
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/jcamdev/clanker.git
+cd clanker
+```
+
+2. **Configure environment variables:**
+Create a `.env` file in the project root (see Environment Configuration section below or or .env.example for details)
+
+3. **Build and run with Docker Compose:**
+```bash
+docker-compose up -d
+```
+
+The bot will automatically start and connect to Discord. To view logs:
+```bash
+docker-compose logs -f discord-bot
+```
+
+#### Docker Commands
+
+- **Start the bot:** `docker-compose up -d`
+- **Stop the bot:** `docker-compose down`
+- **View logs:** `docker-compose logs -f discord-bot`
+- **Restart the bot:** `docker-compose restart`
+- **Rebuild after code changes:** `docker-compose up --build -d`
+
+### Option 2: Direct Python Installation
+
+#### Prerequisites
+- Python 3.7 or higher (pref 3.11)
+- pip
+
+#### Installation Steps
 
 ```bash
-git clone <your-repo-url>
-cd discord-llm-bot
+git clone https://github.com/jcamdev/clanker.git
+cd clanker
 pip install -r requirements.txt
 ```
 
-### 2. Environment Configuration
+### Environment Configuration
 
 Create a `.env` file in the project root:
 
